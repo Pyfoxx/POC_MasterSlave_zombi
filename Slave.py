@@ -2,6 +2,7 @@ import socket
 import ast
 filename = "test_sended.py"
 
+# TODO : add a way to use a command before starting the process (pip install)
 def process_data(target, iter):
     lib = __import__(filename.replace(".py", ""))
     result = lib.main(target, iter)

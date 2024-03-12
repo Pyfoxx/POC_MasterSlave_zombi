@@ -4,7 +4,7 @@ import itertools
 
 slaves = ["127.0.0.1:5001"]
 app = flask.Flask(__name__)
-
+# TODO : Make the master able to get the result from the Slave
 
 def split(a, n):
     k, m = divmod(len(a), n)
