@@ -1,10 +1,14 @@
 import socket
-import json
 import ast
 filename = "test_sended.py"
 
-def process_data(data):
+def process_data(target, iter):
     lib = __import__(filename.replace(".py", ""))
+    result = lib.main(target, iter)
+    if result:
+        return result
+    else:
+        return False
 
 
 # Create a TCP/IP socket
@@ -44,25 +48,22 @@ while True:
         data = receive_all(connection)
         print('received {!r}'.format(data))
         if data:
-            request = data.decode("utf-8")  # convert bytes to string
-            print(data)
-            print('-'*250)
+            request = data.decode("utf-8")
+            del data
             headers, body = request.split('\r\n\r\n', 1)
             boundary = headers[headers.index('boundary=') + 9:]
+            del headers
             datas = body.split(f"--{boundary}")
             target = body.split(f"--{boundary}")[1].split("\r\n")[3]
             iter = body.split(f"--{boundary}")[2].split("\r\n")[3]
             file_data = body.split(f"--{boundary}")[3].split("\r\n")[3]
-            print(f"target: {target}")
-            print(f"iter: {iter}")
-            print(type(iter))
+            del body
             iter = ast.literal_eval(iter)
-            print(f"iter: {iter}")
-            print(type(iter))
-            print(f"file_data: {file_data}")
             save_script(file_data)
             response = 'Success'
             connection.sendall(response.encode('utf-8'))
+            result = process_data(target, iter)
+            connection.sendall(result.encode('utf-8'))
 
     finally:
         # Clean up the connection
